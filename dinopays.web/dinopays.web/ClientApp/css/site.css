@@ -24,10 +24,35 @@ body { font-family: 'Luckiest Guy', cursive; }
     display: inline-block;
 }
 
-.dino-row { margin-top: 50px; }
+    .header h2 {
+        color: #4f6b06;
+        display: none;
+    }
+
+.dino-row-wrapper {
+    background: url(/dino-bg.jpg) no-repeat;
+    background-size: cover;
+    background-position: bottom;
+}
+
+    .dino-row-wrapper.dull {
+        background-image: url(/dino-bg-dull.jpg);
+    } 
+    .dino-row-wrapper.rain {
+        background-image: url(/dino-bg-dull-rain.jpg);
+    } 
+    
+    .dino-row {
+        margin-top: 50px;
+        margin-bottom: 50px;
+        height: 400px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
 
 .dino-row img {
-    max-width: 300px;
+    max-width: 400px;
     width: 90%;
 }
 
@@ -42,20 +67,31 @@ body { font-family: 'Luckiest Guy', cursive; }
     justify-content: center;
     height: 100px;
     flex-direction: column;
-}
-    .summary-item .value {
-        font-size: 28px;
-        color: #a7e20c;
-    }
-    .summary-item .pound {
-        font-size: 28px;
-        color: #a7e20c;
-    }
-
-@media (max-width: 767px) {
-    /* On small screens, the nav menu spans the full width of the screen. Leave a space for it. */
+    margin: 30px;
 }
 
-@media (min-width: 768px) {
-    /* On small screens, convert the nav menu to a vertical sidebar */   
+.summary-item .value {
+    font-size: 28px;
+    color: #a7e20c;
+}
+
+.summary-item .pound {
+    font-size: 28px;
+    color: #a7e20c;
+}
+
+@media (max-width: 920px) {
+    .dino-row {
+        height: 300px;
+    }
+
+    .dino-row img {
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 462px) {
+    .dino-row img {
+        max-width: 200px;
+    }
 }

@@ -62,9 +62,9 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         this.sethealth(health, data.summary.totalIncoming, data.summary.totalOutgoing);
     }
 
-    sethealth(level: number, totalIncoming: number, totalOutgoing: number) {
+    sethealth(health: number, totalIncoming: number, totalOutgoing: number) {
         this.setState({
-            health: level,
+            health: health,
             totalIncoming: totalIncoming,
             totalOutgoing: totalOutgoing
         });
@@ -77,19 +77,33 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         );
     }
 
+    getDinoBg() {
+        if(this.state.health < 2)
+            return 'row dino-row-wrapper rain';
+        if (this.state.health < 3)
+            return 'row dino-row-wrapper dull';
+        return 'row dino-row-wrapper';
+    }
+
     public render() {
         return (
-            <div className='row'>
-                <div className='col-sm-12'>
-                    <div className="text-center dino-row">
-                        {this.renderDino()}
+            <div>
+                <div className={this.getDinoBg()}>
+                    <div className='col-sm-12'>
+                        <div className="text-center dino-row">
+                            {this.renderDino()}
+                        </div>
+                        
                     </div>
+                </div>
+
+                <div className='row'>
                     <div className="col-sm-6">
                         <div className="summary-item">
                             <div>
                                 <span>Incoming:</span>&nbsp;
                                 <span className="pound">&pound;</span>
-                                <span className="value">{this.state.totalIncoming}</span>
+                                <span className="value">{this.state.totalIncoming.toLocaleString('en-GB')}</span>
                             </div>
                         </div>
                     </div>
@@ -98,15 +112,17 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
                             <div>
                                 <span>Outgoing:</span>&nbsp;
                                 <span className="pound">&pound;</span>
-                                <span className="value">{this.state.totalOutgoing}</span>
+                                <span className="value">{this.state.totalOutgoing.toLocaleString('en-GB')}</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="col-sm-12">
-                    <button onClick={this.refresh}>
-                        <i className="fas fa-sync-alt"></i>
-                    </button>
+                <div className='row'>
+                    <div className="col-sm-12">
+                        <button onClick={this.refresh}>
+                            <i className="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         );

@@ -13,6 +13,7 @@ export class Layout extends React.Component<LayoutProps, {}> {
                            <h1 className="text-center">
                                DIN<span className="small">o</span>PAY<span className="big">$</span>
                            </h1>
+                            <h2 className="text-center">you're friendly, judgmental, penny pinching dinosaur</h2>
                        </div>
                    </div>
 
