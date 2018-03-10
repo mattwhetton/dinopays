@@ -30,7 +30,8 @@ namespace dinopays.web.Controllers
             return new Pet
             {
                 Id = id,
-                Health = CalculateHealth(finalSummary)
+                Health = CalculateHealth(finalSummary),
+                Summary = finalSummary
             };
 
             Summary Folder(Summary summary, TransactionSummary transaction)
@@ -65,12 +66,5 @@ namespace dinopays.web.Controllers
             return 10 - (int)Math.Round((summary.TotalOutgoing / summary.TotalIncoming) * 10, 
                                         MidpointRounding.AwayFromZero);
         }
-    }
-
-    public class Summary
-    {
-        public decimal TotalIncoming { get; set; }
-
-        public decimal TotalOutgoing { get; set; }
     }
 }
