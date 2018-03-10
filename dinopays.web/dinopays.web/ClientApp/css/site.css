@@ -9,17 +9,19 @@ body {
 
     .header h1 {
         color: #a7e20c;
-        font-size: 72px;
+        font-size: 64px;
+        margin: 0;
+        white-space: nowrap;
     }
 
         .header h1 span.small {
             color: #a7e20c;
-            font-size: 54px;
+            font-size: 52px;
         }
 
         .header h1 span.big {
             color: #a7e20c;
-            font-size: 104px;
+            font-size: 94px;
             transform: translate(0,10px);
             display: inline-block;
         }
@@ -28,6 +30,7 @@ body {
 }
 .dino-row img {
     max-width: 300px;
+    width: 90%;
 }
 
 @media (max-width: 767px) {
