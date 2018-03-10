@@ -4,7 +4,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using dinopays.web.Options;
 using dinopays.web.Starling.Models;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -15,15 +17,14 @@ namespace dinopays.web.Starling
     {
         private readonly HttpClient _httpClient;
 
-        public StarlingClient()
+        public StarlingClient(IOptions<StarlingOptions> options)
         {
             _httpClient = new HttpClient
             {
                 BaseAddress = new Uri("https://api-sandbox.starlingbank.com/api/v1/"),
                 DefaultRequestHeaders =
                 {
-                    Authorization = new AuthenticationHeaderValue("Bearer", 
-                                                                  "xxx")
+                    Authorization = new AuthenticationHeaderValue("Bearer", options.Value.StarlingAccessToken)
                 }
             };
         }
