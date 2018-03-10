@@ -39,13 +39,38 @@ namespace dinopays.web.Starling
             {
                 var transactions = await response.Content.ReadAsStringAsync();
 
-                return JsonConvert.DeserializeObject<EmbedResponse<TransactionsResponse>>(transactions,
-                    new JsonSerializerSettings
-                    {
-                        ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                        Converters = { new StringEnumConverter() }
-                    })._embedded;
+                return Deserialize<EmbedResponse<TransactionsResponse>>(transactions)._embedded;
             }
+        }
+
+        public async Task<SpendingCategory> GetMastercardTransactionCategory(Guid id, CancellationToken cancel)
+        {
+            using (var response = await _httpClient.GetAsync($"transactions/mastercard/{id}", cancel))
+            {
+                var transaction = await response.Content.ReadAsStringAsync();
+
+                return Deserialize<CategorisedTransaction>(transaction).SpendingCategory;
+            }
+        }
+
+        public async Task<SpendingCategory> GetDirectDebitTransactionCategory(Guid id, CancellationToken cancel)
+        {
+            using (var response = await _httpClient.GetAsync($"transactions/direct-debit/{id}", cancel))
+            {
+                var transaction = await response.Content.ReadAsStringAsync();
+
+                return Deserialize<CategorisedTransaction>(transaction).SpendingCategory;
+            }
+        }
+
+        private static T Deserialize<T>(string content)
+        {
+            return JsonConvert.DeserializeObject<T>(content,
+                                                    new JsonSerializerSettings
+                                                    {
+                                                        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                                                        Converters = {new StringEnumConverter()}
+                                                    });
         }
     }
 }

@@ -10,5 +10,9 @@ namespace dinopays.web.Starling
         Task<TransactionsResponse> GetTransactions(DateTimeOffset from,
                                                    DateTimeOffset to,
                                                    CancellationToken cancel);
+
+        Task<SpendingCategory> GetMastercardTransactionCategory(Guid id, CancellationToken cancel);
+
+        Task<SpendingCategory> GetDirectDebitTransactionCategory(Guid id, CancellationToken cancel);
     }
 }
