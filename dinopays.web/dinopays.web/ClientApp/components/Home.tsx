@@ -49,9 +49,9 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         this.sethealth(health, data.summary.totalIncoming, data.summary.totalOutgoing);
     }
 
-    sethealth(level: number, totalIncoming: number, totalOutgoing: number) {
+    sethealth(health: number, totalIncoming: number, totalOutgoing: number) {
         this.setState({
-            health: level,
+            health: health,
             totalIncoming: totalIncoming,
             totalOutgoing: totalOutgoing
         });
@@ -64,10 +64,18 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         );
     }
 
+    getDinoBg() {
+        if(this.state.health < 2)
+            return 'row dino-row-wrapper rain';
+        if (this.state.health < 3)
+            return 'row dino-row-wrapper dull';
+        return 'row dino-row-wrapper';
+    }
+
     public render() {
         return (
             <div>
-                <div className='row dino-row-wrapper'>
+                <div className={this.getDinoBg()}>
                     <div className='col-sm-12'>
                         <div className="text-center dino-row">
                             {this.renderDino()}
