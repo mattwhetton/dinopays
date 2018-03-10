@@ -66,6 +66,10 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         this.getGoal = this.getGoal.bind(this);
         this.getGoals = this.getGoals.bind(this);
 
+        
+    }
+
+    componentDidMount() {
         setTimeout(this.poll, 10);
     }
 
