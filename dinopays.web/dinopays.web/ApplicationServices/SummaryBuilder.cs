@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using dinopays.web.Data;
 using dinopays.web.Models;
 using dinopays.web.Starling;
 using dinopays.web.Starling.Models;
@@ -13,22 +13,27 @@ namespace dinopays.web.ApplicationServices
     public class SummaryBuilder : ISummaryBuilder
     {
         private readonly IStarlingClient _starlingClient;
+        private readonly IGoalRepository _goalRepository;
 
-        public SummaryBuilder(IStarlingClient starlingClient)
+        public SummaryBuilder(IStarlingClient starlingClient,
+                              IGoalRepository goalRepository)
         {
             _starlingClient = starlingClient;
+            _goalRepository = goalRepository;
         }
 
 
         public async Task<Summary> Summarise(DateTimeOffset from, DateTimeOffset to, CancellationToken cancel)
         {
-            var transactions = await GetTransactions(from, to, cancel);
+            var transactions = (await GetTransactions(from, to, cancel)).ToList();
 
             var finalSummary = transactions.Aggregate(new Summary(), Folder);
             finalSummary.RecentBonusTransactions = transactions.Where(t => t.Direction == Direction.Outbound &&
                                                                            t.PositivityCategory != PositivityCategory.Neutral)
                                                                .OrderByDescending(t => t.CreatedAt)
                                                                .Take(5);
+            finalSummary.Goals = AnalyseGoals(transactions);
+
             return finalSummary;
 
             Summary Folder(Summary summary, Transaction transaction)
@@ -61,8 +66,8 @@ namespace dinopays.web.ApplicationServices
 
 
         private async Task<IEnumerable<Transaction>> GetTransactions(DateTimeOffset from, 
-                                                                                DateTimeOffset to, 
-                                                                                CancellationToken cancel)
+                                                                     DateTimeOffset to, 
+                                                                     CancellationToken cancel)
         {
             var allTransactionsTask = _starlingClient.GetTransactions(from, to, cancel);
             var masterCardTransactionsTask = _starlingClient.GetMasterCardTransactions(from, to, cancel);
@@ -137,6 +142,37 @@ namespace dinopays.web.ApplicationServices
             else
             {
                 return Task.FromResult(SpendingCategory.None);
+            }
+        }
+
+        private IEnumerable<GoalStatus> AnalyseGoals(IEnumerable<Transaction> transactions)
+        {
+            return _goalRepository.Goals.Select(AnalyseGoal);
+
+            GoalStatus AnalyseGoal(Goal goal)
+            {
+                var tomorrow = new DateTimeOffset(DateTime.Today.AddDays(1), TimeSpan.Zero);
+                var from = goal.Frequency == Frequency.Daily
+                    ? tomorrow.AddDays(-1)
+                    : tomorrow.AddDays(-7);
+
+                var currentSpend = transactions.Where(t => goal.MatchingTransactions
+                                                               .Contains(t.Description) &&
+                                                           t.CreatedAt >= from &&
+                                                           t.CreatedAt < tomorrow)
+                                               .Select(t => t.Amount)
+                                               .Sum();
+
+                bool onTarget = goal.GoalDirection == GoalDirection.Over
+                    ? currentSpend >= goal.Threshold
+                    : currentSpend <= goal.Threshold;
+
+                return new GoalStatus
+                {
+                    CurrentSpend = currentSpend,
+                    Goal = goal,
+                    OnTarget = onTarget
+                };
             }
         }
     }

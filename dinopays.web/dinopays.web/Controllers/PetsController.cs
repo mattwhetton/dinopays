@@ -31,25 +31,49 @@ namespace dinopays.web.Controllers
                 Id = id,
                 Health = CalculateHealth(finalSummary),
                 BonusHealth = CalculateBonus(finalSummary),
-                Summary = finalSummary
+                Summary = finalSummary,
             };
         }
 
         private int CalculateBonus(Summary summary)
         {
-            var diff = summary.PositiveOutgoing - summary.NegativeOutgoing;
+            var bonus = PositiveNegativeBonus() + GoalBonus();
 
-            if (diff > 0)
+            if (bonus < -3)
             {
-                return 2;
+                return -3;
+            }
+            else if (bonus > 3)
+            {
+                return 3;
             }
 
-            if (diff < 0)
+            return bonus;
+
+            int PositiveNegativeBonus()
             {
-                return -2;
+                var diff = summary.PositiveOutgoing - summary.NegativeOutgoing;
+
+                if (diff > 0)
+                {
+                    return 1;
+                }
+
+                if (diff < 0)
+                {
+                    return -1;
+                }
+
+                return 0;
             }
 
-            return 0;
+            int GoalBonus()
+            {
+                return summary.Goals
+                              .Select(g => g.OnTarget ? 1 : -1)
+                              .Sum();
+
+            }
         }
 
         int CalculateHealth(Summary summary)

@@ -14,5 +14,7 @@ namespace dinopays.web.Models
         public decimal NegativeOutgoing { get; set; }
 
         public IEnumerable<Transaction> RecentBonusTransactions { get; set; } = Enumerable.Empty<Transaction>();
+
+        public IEnumerable<GoalStatus> Goals { get; set; }
     }
 }
