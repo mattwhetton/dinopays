@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using dinopays.web.ApplicationServices;
 using dinopays.web.Models;
 using dinopays.web.Starling;
 using dinopays.web.Starling.Models;
@@ -17,43 +18,38 @@ namespace dinopays.web.Controllers
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public async Task<Pet> Get(Guid id,
-                                   [FromServices] IStarlingClient starlingClient,
+                                   [FromServices] ISummaryBuilder summaryBuilder,
                                    CancellationToken cancel)
         {
             var now = DateTimeOffset.UtcNow;
             var then = now.AddMonths(-1);
 
-            var response = await starlingClient.GetTransactions(then, now, cancel);
-
-            var finalSummary = response.Transactions.Aggregate(new Summary {TotalIncoming = 0m, TotalOutgoing = 0m}, Folder);
+            var finalSummary = await summaryBuilder.Summarise(then, now, cancel);
 
             return new Pet
             {
                 Id = id,
                 Health = CalculateHealth(finalSummary),
+                BonusHealth = CalculateBonus(finalSummary),
                 Summary = finalSummary
             };
+        }
 
-            Summary Folder(Summary summary, TransactionSummary transaction)
+        private int CalculateBonus(Summary summary)
+        {
+            var diff = summary.PositiveOutgoing - summary.NegativeOutgoing;
+
+            if (diff > 0)
             {
-                switch(transaction.Direction)
-                {
-                    case Direction.Inbound:
-                        return new Summary
-                        {
-                            TotalIncoming = summary.TotalIncoming + transaction.Amount,
-                            TotalOutgoing = summary.TotalOutgoing
-                        };
-                    case Direction.Outbound:
-                        return new Summary
-                        {
-                            TotalIncoming = summary.TotalIncoming,
-                            TotalOutgoing = summary.TotalOutgoing + Math.Abs(transaction.Amount)
-                        };
-                    default:
-                        return summary;
-                }
+                return 2;
             }
+
+            if (diff < 0)
+            {
+                return -2;
+            }
+
+            return 0;
         }
 
         int CalculateHealth(Summary summary)
@@ -63,8 +59,8 @@ namespace dinopays.web.Controllers
                 return 0;
             }
 
-            return 10 - (int)Math.Round((summary.TotalOutgoing / summary.TotalIncoming) * 10, 
-                                        MidpointRounding.AwayFromZero);
+            return 10 - (int) Math.Round((summary.TotalOutgoing / summary.TotalIncoming) * 10,
+                                         MidpointRounding.AwayFromZero);
         }
     }
 }

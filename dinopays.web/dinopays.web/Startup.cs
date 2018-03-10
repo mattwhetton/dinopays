@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using dinopays.web.ApplicationServices;
 using dinopays.web.Options;
 using dinopays.web.Starling;
 using Microsoft.AspNetCore.Builder;
@@ -27,6 +24,7 @@ namespace dinopays.web
             services.Configure<StarlingOptions>(Configuration);
 
             services.AddSingleton<IStarlingClient, StarlingClient>();
+            services.AddSingleton<ISummaryBuilder, SummaryBuilder>();
 
             services.AddMvc();
         }
