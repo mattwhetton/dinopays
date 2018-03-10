@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as moment from 'moment';
 import { RouteComponentProps } from 'react-router';
 
 interface IHomeState {
@@ -48,6 +49,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         this.poll = this.poll.bind(this);
         this.getTransactions = this.getTransactions.bind(this);
         this.getTransaction = this.getTransaction.bind(this);
+        this.getHealthDescription = this.getHealthDescription.bind(this);
 
         setTimeout(this.poll, 10);
     }
@@ -83,7 +85,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
     }
 
     getDinoBg() {
-        if(this.state.health < 2)
+        if (this.state.health < 2)
             return 'row dino-row-wrapper rain';
         if (this.state.health < 3)
             return 'row dino-row-wrapper dull';
@@ -91,19 +93,57 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
     }
 
     getTransaction(txn: IPetTransaction) {
-        return (
-            <div>
-                test {txn.createdAt}
-            </div>
-        );
+        let date = moment(txn.createdAt);
+
+        if (txn.positivityCategory === "Positive") {
+            return (
+                <div className="transaction positive" key={txn.createdAt}>
+                    <span className="thumb green">
+                        <i className="fas fa-thumbs-up"></i>
+                    </span> &nbsp; You put &pound;{txn.amount.toLocaleString('en-GB')} towards {this.translateSpendingCategory(txn.spendingCategory)} {date.fromNow()} ({txn.description})
+                </div>
+            );
+        } else {
+            return (
+                <div className="transaction negative" key={txn.createdAt}>
+                    <span className="thumb red">
+                        <i className="fas fa-thumbs-down"></i>
+                    </span> &nbsp; You spent &pound;{txn.amount.toLocaleString('en-GB')} on {this.translateSpendingCategory(txn.spendingCategory)} {date.fromNow()} ({txn.description})
+                </div>
+            );
+        }
+    }
+
+    translateSpendingCategory(cat: string) {
+        if (cat === "EATING_OUT")
+            return "eating out";
+        return cat.toLowerCase();
     }
 
     getTransactions() {
         return (
-            <div>
-                {this.state.recentBonusTransactions.map(this.getTransaction)}
+            <div >
+                <h3 className="transactions-title">Why your dinopet is <span className="green">{this.getHealthDescription()}</span></h3>
+                <div className="transactions">
+                    {this.state.recentBonusTransactions.map(this.getTransaction)}
+                </div>
             </div>
         );
+    }
+
+    getHealthDescription() {
+        if (this.state.health === 0)
+            return 'very unhappy';
+        if (this.state.health === 1)
+            return 'unhappy';
+        if (this.state.health === 2)
+            return 'a little unhappy';
+        if (this.state.health === 3)
+            return 'quite happy';
+        if (this.state.health === 4)
+            return 'happy';
+        if (this.state.health === 5)
+            return 'ecstatic';
     }
 
     public render() {
@@ -114,7 +154,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
                         <div className="text-center dino-row">
                             {this.renderDino()}
                         </div>
-                        
+
                     </div>
                 </div>
 
@@ -140,11 +180,11 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
                 </div>
 
                 <div className='row'>
-                    <div className="col-sm-12">
+                    <div className="col-sm-10 col-sm-offset-1">
                         {this.getTransactions()}
                     </div>
                 </div>
-                
+
             </div>
         );
     }
