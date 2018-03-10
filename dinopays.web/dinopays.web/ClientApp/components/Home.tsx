@@ -1,21 +1,66 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 
-interface ISomeShit {
-    test: string
+interface IHomeState {
+    happiness: number
 }
 
-export class Home extends React.Component<RouteComponentProps<{}>, ISomeShit> {
+interface IPet {
+    id: string,
+    health: number
+}
+
+export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
     constructor() {
         super();
-        this.state = { test: "hello" };
-        this.state = { test: "hello" };
+
+        this.state = {
+            happiness: 3
+        };
+
+        this.renderDino = this.renderDino.bind(this);
+        this.refresh = this.refresh.bind(this);
+        this.poll = this.poll.bind(this);
+
+        setTimeout(this.poll, 10);
+    }
+
+    async poll() {
+        await this.refresh();
+        setTimeout(this.poll, 1000);
+    }
+
+    async refresh() {
+        let response = await fetch('/api/pets/8721EDE4-EDD5-4321-B42A-1208BEED3FA1');
+        let data = await response.json();
+        console.debug(`Health: ${data.health}`);
+        this.setHappiness(Math.round(data.health / 2));
+    }
+
+    setHappiness(level: number) {
+        this.setState({
+            happiness: level
+        });
+    }
+
+    renderDino() {
+        let dinoSrc = `/dino-${this.state.happiness}.png`;
+        return (
+            <img src={dinoSrc}/>
+        );
     }
 
     public render() {
         return (
-            <div className="text-center dino-row">
-                <img src="dino-normal.png" />
+            <div className='row'>
+                <div className='col-sm-12'>
+                    <div className="text-center dino-row">
+                        {this.renderDino()}
+                    </div>
+                </div>
+                <div className="col-sm-12">
+                    <button onClick={this.refresh}><i className="fas fa-sync-alt"></i></button>
+                </div>
             </div>
         );
     }
