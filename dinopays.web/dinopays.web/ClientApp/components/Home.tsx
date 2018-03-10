@@ -6,7 +6,8 @@ interface IHomeState {
     health: number,
     totalIncoming: number,
     totalOutgoing: number,
-    recentBonusTransactions: IPetTransaction[]
+    recentBonusTransactions: IPetTransaction[],
+    goals: IPetGoalSummary[]
 }
 
 interface IPet {
@@ -22,6 +23,17 @@ interface IPetHealthSummary {
     positiveOutgoing: number,
     negativeOutgoing: number,
     recentBonusTransactions: IPetTransaction[],
+    goals: IPetGoalSummary[]
+}
+
+interface IPetGoalSummary {
+    onTarget: boolean,
+    goal: IPetGoal
+}
+
+interface IPetGoal {
+    id: string,
+    name: string,
 }
 
 interface IPetTransaction {
@@ -41,7 +53,8 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
             health: 3,
             totalIncoming: 0,
             totalOutgoing: 0,
-            recentBonusTransactions: []
+            recentBonusTransactions: [],
+            goals: []
         };
 
         this.renderDino = this.renderDino.bind(this);
@@ -50,6 +63,8 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         this.getTransactions = this.getTransactions.bind(this);
         this.getTransaction = this.getTransaction.bind(this);
         this.getHealthDescription = this.getHealthDescription.bind(this);
+        this.getGoal = this.getGoal.bind(this);
+        this.getGoals = this.getGoals.bind(this);
 
         setTimeout(this.poll, 10);
     }
@@ -65,15 +80,16 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         //console.debug(`Health: ${data.health}`);
         let health = Math.min(Math.round((data.health + data.bonusHealth) / 2), 5);
 
-        this.sethealth(health, data.summary.totalIncoming, data.summary.totalOutgoing, data.summary.recentBonusTransactions);
+        this.sethealth(health, data.summary.totalIncoming, data.summary.totalOutgoing, data.summary.recentBonusTransactions, data.summary.goals);
     }
 
-    sethealth(health: number, totalIncoming: number, totalOutgoing: number, recentBonusTransactions: IPetTransaction[]) {
+    sethealth(health: number, totalIncoming: number, totalOutgoing: number, recentBonusTransactions: IPetTransaction[], goals: IPetGoalSummary[]) {
         this.setState({
             health: health,
             totalIncoming: totalIncoming,
             totalOutgoing: totalOutgoing,
-            recentBonusTransactions: recentBonusTransactions
+            recentBonusTransactions: recentBonusTransactions,
+            goals: goals
         });
     }
 
@@ -123,9 +139,43 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
     getTransactions() {
         return (
             <div >
-                <h3 className="transactions-title">Why your dinopet is <span className="green">{this.getHealthDescription()}</span></h3>
+                <h3 className="transactions-title">
+                    Why your dinopet is <span className="green">{this.getHealthDescription()}</span>
+                </h3>
                 <div className="transactions">
                     {this.state.recentBonusTransactions.map(this.getTransaction)}
+                </div>
+            </div>
+        );
+    }
+
+    getGoal(goal: IPetGoalSummary) {
+        if (goal.onTarget) {
+            return (
+                <div className="transaction positive" key={goal.goal.id}>
+                    <span className="thumb green">
+                        <i className="fas fa-thumbs-up"></i>
+                    </span> &nbsp; {goal.goal.name}
+                </div>
+            );
+        }
+        return (
+            <div className="transaction negative" key={goal.goal.id}>
+                <span className="thumb red">
+                    <i className="fas fa-thumbs-down"></i>
+                </span> &nbsp; {goal.goal.name}
+            </div>
+        );
+    }
+
+    getGoals() {
+        return (
+            <div>
+                <h3 className="transactions-title">
+                    Your goals
+                </h3>
+                <div className="transactions">
+                    {this.state.goals.map(this.getGoal)}
                 </div>
             </div>
         );
@@ -179,6 +229,11 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
                     </div>
                 </div>
 
+                <div className='row'>
+                    <div className="col-sm-10 col-sm-offset-1">
+                        {this.getGoals()}
+                    </div>
+                </div>
                 <div className='row'>
                     <div className="col-sm-10 col-sm-offset-1">
                         {this.getTransactions()}

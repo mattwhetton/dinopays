@@ -17,7 +17,10 @@ export class Layout extends React.Component<LayoutProps, {}> {
                        </div>
                    </div>
 
-                   { this.props.children }
+                   {this.props.children}
+
+                   <div className="row footer">
+                   </div>
                </div>
 
     }

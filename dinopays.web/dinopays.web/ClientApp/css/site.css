@@ -97,6 +97,12 @@ body { font-family: 'Luckiest Guy', cursive; }
 
 .transaction .thumb { font-size: 26px !important; }
 
+.footer {
+    background: #333;
+    height: 20px;
+    margin-top: 50px;
+}
+
 @media (max-width: 920px) {
     .dino-row { height: 300px; }
 
