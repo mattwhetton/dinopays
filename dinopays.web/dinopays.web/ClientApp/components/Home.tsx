@@ -2,12 +2,20 @@ import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 
 interface IHomeState {
-    happiness: number
+    health: number,
+    totalIncoming: number,
+    totalOutgoing: number
 }
 
 interface IPet {
     id: string,
-    health: number
+    health: number,
+    summary: IPetHealthSummary
+}
+
+interface IPetHealthSummary {
+    totalIncoming: number,
+    totalOutgoing: number
 }
 
 export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
@@ -15,7 +23,9 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         super();
 
         this.state = {
-            happiness: 3
+            health: 3,
+            totalIncoming: 0,
+            totalOutgoing: 0
         };
 
         this.renderDino = this.renderDino.bind(this);
@@ -33,18 +43,22 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
     async refresh() {
         let response = await fetch('/api/pets/8721EDE4-EDD5-4321-B42A-1208BEED3FA1');
         let data = await response.json();
-        console.debug(`Health: ${data.health}`);
-        this.setHappiness(Math.round(data.health / 2));
+        //console.debug(`Health: ${data.health}`);
+        let health = Math.round(data.health / 2);
+
+        this.sethealth(health, data.summary.totalIncoming, data.summary.totalOutgoing);
     }
 
-    setHappiness(level: number) {
+    sethealth(level: number, totalIncoming: number, totalOutgoing: number) {
         this.setState({
-            happiness: level
+            health: level,
+            totalIncoming: totalIncoming,
+            totalOutgoing: totalOutgoing
         });
     }
 
     renderDino() {
-        let dinoSrc = `/dino-${this.state.happiness}.png`;
+        let dinoSrc = `/dino-${this.state.health}.png`;
         return (
             <img src={dinoSrc}/>
         );
@@ -57,9 +71,29 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
                     <div className="text-center dino-row">
                         {this.renderDino()}
                     </div>
+                    <div className="col-sm-6">
+                        <div className="summary-item">
+                            <div>
+                                <span>Incoming:</span>&nbsp;
+                                <span className="pound">&pound;</span>
+                                <span className="value">{this.state.totalIncoming}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-sm-6">
+                        <div className="summary-item">
+                            <div>
+                                <span>Outgoing:</span>&nbsp;
+                                <span className="pound">&pound;</span>
+                                <span className="value">{this.state.totalOutgoing}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div className="col-sm-12">
-                    <button onClick={this.refresh}><i className="fas fa-sync-alt"></i></button>
+                    <button onClick={this.refresh}>
+                        <i className="fas fa-sync-alt"></i>
+                    </button>
                 </div>
             </div>
         );
