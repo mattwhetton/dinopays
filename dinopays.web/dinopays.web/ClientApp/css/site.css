@@ -1,43 +1,61 @@
-body {
-     font-family: 'Luckiest Guy', cursive;
-}
+body { font-family: 'Luckiest Guy', cursive; }
 
 .header {
     background: #222;
     padding-bottom: 40px;
 }
 
-    .header h1 {
-        color: #a7e20c;
-        font-size: 64px;
-        margin: 0;
-        white-space: nowrap;
-    }
-
-        .header h1 span.small {
-            color: #a7e20c;
-            font-size: 52px;
-        }
-
-        .header h1 span.big {
-            color: #a7e20c;
-            font-size: 94px;
-            transform: translate(0,10px);
-            display: inline-block;
-        }
-.dino-row {
-    margin-top: 50px;
+.header h1 {
+    color: #a7e20c;
+    font-size: 64px;
+    margin: 0;
+    white-space: nowrap;
 }
+
+.header h1 span.small {
+    color: #a7e20c;
+    font-size: 52px;
+}
+
+.header h1 span.big {
+    color: #a7e20c;
+    font-size: 94px;
+    transform: translate(0, 10px);
+    display: inline-block;
+}
+
+.dino-row { margin-top: 50px; }
+
 .dino-row img {
     max-width: 300px;
     width: 90%;
 }
+
+.summary-item {
+    margin-top: 30px;
+    text-align: center;
+    background: #333;
+    color: #FFF;
+    font-size: 22px;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    height: 100px;
+    flex-direction: column;
+}
+    .summary-item .value {
+        font-size: 28px;
+        color: #a7e20c;
+    }
+    .summary-item .pound {
+        font-size: 28px;
+        color: #a7e20c;
+    }
 
 @media (max-width: 767px) {
     /* On small screens, the nav menu spans the full width of the screen. Leave a space for it. */
 }
 
 @media (min-width: 768px) {
-    /* On small screens, convert the nav menu to a vertical sidebar */
-   
+    /* On small screens, convert the nav menu to a vertical sidebar */   
 }
