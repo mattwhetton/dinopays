@@ -13,8 +13,6 @@ namespace dinopays.web.Models
 
         public decimal NegativeOutgoing { get; set; }
 
-        public IEnumerable<Transaction> PositiveTransactions { get; set; } = Enumerable.Empty<Transaction>();
-
-        public IEnumerable<Transaction> NegativeTransactions { get; set; } = Enumerable.Empty<Transaction>();
+        public IEnumerable<Transaction> RecentBonusTransactions { get; set; } = Enumerable.Empty<Transaction>();
     }
 }

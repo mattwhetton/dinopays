@@ -4,6 +4,8 @@ namespace dinopays.web.Starling.Models
 {
     public enum SpendingCategory
     {
+        [EnumMember(Value = "NONE")]
+        None,
         [EnumMember(Value = "BILLS_AND_SERVICES")]
         BillsAndServices,
         [EnumMember(Value = "EATING_OUT")]
@@ -25,8 +27,6 @@ namespace dinopays.web.Starling.Models
         [EnumMember(Value = "TRANSPORT")]
         Transport,
         [EnumMember(Value = "LIFESTYLE")]
-        Lifestyle,
-        [EnumMember(Value = "NONE")]
-        None
+        Lifestyle
     }
 }

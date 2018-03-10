@@ -22,19 +22,13 @@ namespace dinopays.web.ApplicationServices
 
         public async Task<Summary> Summarise(DateTimeOffset from, DateTimeOffset to, CancellationToken cancel)
         {
-            var response = await _starlingClient.GetTransactions(from, to, cancel);
-
-            var transactions = MapTransactions(response, cancel);
+            var transactions = await GetTransactions(from, to, cancel);
 
             var finalSummary = transactions.Aggregate(new Summary(), Folder);
-            finalSummary.PositiveTransactions = transactions.Where(t => t.Direction == Direction.Outbound &&
-                                                                        t.PositivityCategory == PositivityCategory.Positive)
-                                                            .OrderByDescending(t => t.CreatedAt)
-                                                            .Take(5);
-            finalSummary.NegativeTransactions = transactions.Where(t => t.Direction == Direction.Outbound &&
-                                                                        t.PositivityCategory == PositivityCategory.Negative)
-                                                            .OrderByDescending(t => t.CreatedAt)
-                                                            .Take(5);
+            finalSummary.RecentBonusTransactions = transactions.Where(t => t.Direction == Direction.Outbound &&
+                                                                           t.PositivityCategory != PositivityCategory.Neutral)
+                                                               .OrderByDescending(t => t.CreatedAt)
+                                                               .Take(5);
             return finalSummary;
 
             Summary Folder(Summary summary, Transaction transaction)
@@ -65,21 +59,34 @@ namespace dinopays.web.ApplicationServices
             }
         }
 
-        private List<Transaction> MapTransactions(TransactionsResponse response, CancellationToken cancel)
+
+        private async Task<IEnumerable<Transaction>> GetTransactions(DateTimeOffset from, 
+                                                                                DateTimeOffset to, 
+                                                                                CancellationToken cancel)
         {
-            return response.Transactions.AsParallel().Select(t =>
-            {
-                var spendingCategory = GetSpendingCategory(t, cancel).GetAwaiter().GetResult();
-                return new Transaction
-                {
-                    CreatedAt = t.Created,
-                    Amount = Math.Abs(t.Amount),
-                    Description = t.Narrative,
-                    Direction = t.Direction,
-                    PositivityCategory = Categorise(spendingCategory),
-                    SpendingCategory = spendingCategory
-                };
-            }).ToList();
+            var allTransactionsTask = _starlingClient.GetTransactions(from, to, cancel);
+            var masterCardTransactionsTask = _starlingClient.GetMasterCardTransactions(from, to, cancel);
+            var directDebitTransactionsTask = _starlingClient.GetDirectDebitTransactions(from, to, cancel);
+
+            var allTransactions = await allTransactionsTask;
+            var masterCardTransactions = await masterCardTransactionsTask;
+            var directDebitTransactions = await directDebitTransactionsTask;
+
+            var filteredTransactions = allTransactions.Transactions
+                                                      .Where(t => masterCardTransactions.Transactions.All(mt => mt.Id != t.Id) &&
+                                                                  directDebitTransactions.Transactions.All(dt => dt.Id != t.Id));
+
+            return filteredTransactions.Concat(masterCardTransactions.Transactions)
+                                       .Concat(directDebitTransactions.Transactions)
+                                       .Select(t => new Transaction
+                                       {
+                                           CreatedAt = t.Created,
+                                           Amount = Math.Abs(t.Amount),
+                                           Description = t.Narrative,
+                                           Direction = t.Direction,
+                                           PositivityCategory = Categorise(t.SpendingCategory),
+                                           SpendingCategory = t.SpendingCategory
+                                       });
         }
 
         PositivityCategory Categorise(SpendingCategory spendingCategory)
