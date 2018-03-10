@@ -14,5 +14,13 @@ namespace dinopays.web.Starling
         Task<SpendingCategory> GetMastercardTransactionCategory(Guid id, CancellationToken cancel);
 
         Task<SpendingCategory> GetDirectDebitTransactionCategory(Guid id, CancellationToken cancel);
+
+        Task<TransactionsResponse> GetMasterCardTransactions(DateTimeOffset from,
+                                                                             DateTimeOffset to,
+                                                                             CancellationToken cancel);
+
+        Task<TransactionsResponse> GetDirectDebitTransactions(DateTimeOffset from,
+                                                                              DateTimeOffset to,
+                                                                              CancellationToken cancel);
     }
 }
