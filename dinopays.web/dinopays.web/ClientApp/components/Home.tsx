@@ -46,6 +46,8 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         this.renderDino = this.renderDino.bind(this);
         this.refresh = this.refresh.bind(this);
         this.poll = this.poll.bind(this);
+        this.getTransactions = this.getTransactions.bind(this);
+        this.getTransaction = this.getTransaction.bind(this);
 
         setTimeout(this.poll, 10);
     }
@@ -88,6 +90,22 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         return 'row dino-row-wrapper';
     }
 
+    getTransaction(txn: IPetTransaction) {
+        return (
+            <div>
+                test {txn.createdAt}
+            </div>
+        );
+    }
+
+    getTransactions() {
+        return (
+            <div>
+                {this.state.recentBonusTransactions.map(this.getTransaction)}
+            </div>
+        );
+    }
+
     public render() {
         return (
             <div>
@@ -123,17 +141,10 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
 
                 <div className='row'>
                     <div className="col-sm-12">
-                        
+                        {this.getTransactions()}
                     </div>
                 </div>
-
-                <div className='row'>
-                    <div className="col-sm-12">
-                        <button onClick={this.refresh}>
-                            <i className="fas fa-sync-alt"></i>
-                        </button>
-                    </div>
-                </div>
+                
             </div>
         );
     }
