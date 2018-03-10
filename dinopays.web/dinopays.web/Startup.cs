@@ -1,4 +1,5 @@
 using dinopays.web.ApplicationServices;
+using dinopays.web.Data;
 using dinopays.web.Options;
 using dinopays.web.Starling;
 using Microsoft.AspNetCore.Builder;
@@ -26,6 +27,7 @@ namespace dinopays.web
 
             services.AddSingleton<IStarlingClient, StarlingClient>();
             services.AddSingleton<ISummaryBuilder, SummaryBuilder>();
+            services.AddSingleton<IGoalRepository, GoalRepository>();
 
             services.AddMvc().AddJsonOptions(o => o.SerializerSettings.Converters.Add(new StringEnumConverter()));
         }
