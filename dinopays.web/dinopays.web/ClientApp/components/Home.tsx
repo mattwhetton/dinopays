@@ -4,12 +4,14 @@ import { RouteComponentProps } from 'react-router';
 interface IHomeState {
     health: number,
     totalIncoming: number,
-    totalOutgoing: number
+    totalOutgoing: number,
+    recentBonusTransactions: IPetTransaction[]
 }
 
 interface IPet {
     id: string,
     health: number,
+    bonusHealth: number,
     summary: IPetHealthSummary
 }
 
@@ -18,8 +20,7 @@ interface IPetHealthSummary {
     totalOutgoing: number,
     positiveOutgoing: number,
     negativeOutgoing: number,
-    positiveTransactions: IPetTransaction[],
-    negativeTransactions: IPetTransaction[]
+    recentBonusTransactions: IPetTransaction[],
 }
 
 interface IPetTransaction {
@@ -38,7 +39,8 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         this.state = {
             health: 3,
             totalIncoming: 0,
-            totalOutgoing: 0
+            totalOutgoing: 0,
+            recentBonusTransactions: []
         };
 
         this.renderDino = this.renderDino.bind(this);
@@ -57,16 +59,17 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         let response = await fetch('/api/pets/8721EDE4-EDD5-4321-B42A-1208BEED3FA1');
         let data = await response.json() as IPet;
         //console.debug(`Health: ${data.health}`);
-        let health = Math.round(data.health / 2);
+        let health = Math.min(Math.round((data.health + data.bonusHealth) / 2), 5);
 
-        this.sethealth(health, data.summary.totalIncoming, data.summary.totalOutgoing);
+        this.sethealth(health, data.summary.totalIncoming, data.summary.totalOutgoing, data.summary.recentBonusTransactions);
     }
 
-    sethealth(health: number, totalIncoming: number, totalOutgoing: number) {
+    sethealth(health: number, totalIncoming: number, totalOutgoing: number, recentBonusTransactions: IPetTransaction[]) {
         this.setState({
             health: health,
             totalIncoming: totalIncoming,
-            totalOutgoing: totalOutgoing
+            totalOutgoing: totalOutgoing,
+            recentBonusTransactions: recentBonusTransactions
         });
     }
 
@@ -117,6 +120,13 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
                         </div>
                     </div>
                 </div>
+
+                <div className='row'>
+                    <div className="col-sm-12">
+                        
+                    </div>
+                </div>
+
                 <div className='row'>
                     <div className="col-sm-12">
                         <button onClick={this.refresh}>
