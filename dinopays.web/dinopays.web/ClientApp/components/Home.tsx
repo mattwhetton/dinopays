@@ -15,7 +15,20 @@ interface IPet {
 
 interface IPetHealthSummary {
     totalIncoming: number,
-    totalOutgoing: number
+    totalOutgoing: number,
+    positiveOutgoing: number,
+    negativeOutgoing: number,
+    positiveTransactions: IPetTransaction[],
+    negativeTransactions: IPetTransaction[]
+}
+
+interface IPetTransaction {
+    createdAt: string,
+    description: string,
+    amount: number,
+    direction: string,
+    spendingCategory: string,
+    positivityCategory: string
 }
 
 export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
@@ -42,7 +55,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
 
     async refresh() {
         let response = await fetch('/api/pets/8721EDE4-EDD5-4321-B42A-1208BEED3FA1');
-        let data = await response.json();
+        let data = await response.json() as IPet;
         //console.debug(`Health: ${data.health}`);
         let health = Math.round(data.health / 2);
 
