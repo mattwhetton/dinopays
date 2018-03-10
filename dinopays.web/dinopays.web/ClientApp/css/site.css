@@ -24,6 +24,11 @@ body { font-family: 'Luckiest Guy', cursive; }
     display: inline-block;
 }
 
+    .header h2 {
+        color: #4f6b06;
+        display: none;
+    }
+
 .dino-row-wrapper {
     background: url(/dino-bg.jpg) no-repeat;
     background-size: cover;
