@@ -4,6 +4,6 @@ namespace dinopays.web.Starling.Models
 {
     public class TransactionsResponse
     {
-        public IEnumerable<TransactionSummary> Transactions { get; set; }
+        public IEnumerable<CategorisedTransaction> Transactions { get; set; }
     }
 }

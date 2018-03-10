@@ -29,23 +29,70 @@ namespace dinopays.web.Starling
             };
         }
 
-        public async Task<TransactionsResponse> GetTransactions(DateTimeOffset from,
-                                                                DateTimeOffset to,
-                                                                CancellationToken cancel)
+        public Task<TransactionsResponse> GetTransactions(DateTimeOffset from,
+                                                          DateTimeOffset to,
+                                                          CancellationToken cancel)
+        {
+            return GetCategorisedTransactions("transactions", from, to, cancel);
+        }
+
+        public Task<TransactionsResponse> GetMasterCardTransactions(DateTimeOffset from,
+                                                                    DateTimeOffset to,
+                                                                    CancellationToken cancel)
+        {
+            return GetCategorisedTransactions("transactions/mastercard", from, to, cancel);
+        }
+
+        public Task<TransactionsResponse> GetDirectDebitTransactions(DateTimeOffset from,
+                                                                     DateTimeOffset to,
+                                                                     CancellationToken cancel)
+        {
+            return GetCategorisedTransactions("transactions/direct-debit", from, to, cancel);
+        }
+
+        private async Task<TransactionsResponse> GetCategorisedTransactions(string route,
+                                                                            DateTimeOffset from,
+                                                                            DateTimeOffset to,
+                                                                            CancellationToken cancel)
         {
             var fromParam = from.ToUniversalTime().ToString("yyyy-MM-dd");
             var toParam = to.ToUniversalTime().ToString("yyyy-MM-dd");
-            using (var response = await _httpClient.GetAsync($"transactions?from={fromParam}&to={toParam}", cancel))
+            using (var response = await _httpClient.GetAsync($"{route}?from={fromParam}&to={toParam}", cancel))
             {
                 var transactions = await response.Content.ReadAsStringAsync();
 
-                return JsonConvert.DeserializeObject<EmbedResponse<TransactionsResponse>>(transactions,
-                    new JsonSerializerSettings
-                    {
-                        ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                        Converters = { new StringEnumConverter() }
-                    })._embedded;
+                return Deserialize<EmbedResponse<TransactionsResponse>>(transactions)._embedded;
             }
+        }
+
+        public async Task<SpendingCategory> GetMastercardTransactionCategory(Guid id, CancellationToken cancel)
+        {
+            using (var response = await _httpClient.GetAsync($"transactions/mastercard/{id}", cancel))
+            {
+                var transaction = await response.Content.ReadAsStringAsync();
+
+                return Deserialize<CategorisedTransaction>(transaction).SpendingCategory;
+            }
+        }
+
+        public async Task<SpendingCategory> GetDirectDebitTransactionCategory(Guid id, CancellationToken cancel)
+        {
+            using (var response = await _httpClient.GetAsync($"transactions/direct-debit/{id}", cancel))
+            {
+                var transaction = await response.Content.ReadAsStringAsync();
+
+                return Deserialize<CategorisedTransaction>(transaction).SpendingCategory;
+            }
+        }
+
+        private static T Deserialize<T>(string content)
+        {
+            return JsonConvert.DeserializeObject<T>(content,
+                                                    new JsonSerializerSettings
+                                                    {
+                                                        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                                                        Converters = {new StringEnumConverter()}
+                                                    });
         }
     }
 }

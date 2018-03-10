@@ -9,6 +9,8 @@ namespace dinopays.web.Models
 
         public int Health { get; set; }
 
+        public int BonusHealth { get; set; }
+
         public Summary Summary { get; set; }
     }
 }

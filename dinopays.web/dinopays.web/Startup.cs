@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using dinopays.web.ApplicationServices;
 using dinopays.web.Options;
 using dinopays.web.Starling;
 using Microsoft.AspNetCore.Builder;
@@ -9,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Converters;
 
 namespace dinopays.web
 {
@@ -27,8 +25,9 @@ namespace dinopays.web
             services.Configure<StarlingOptions>(Configuration);
 
             services.AddSingleton<IStarlingClient, StarlingClient>();
+            services.AddSingleton<ISummaryBuilder, SummaryBuilder>();
 
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(o => o.SerializerSettings.Converters.Add(new StringEnumConverter()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
