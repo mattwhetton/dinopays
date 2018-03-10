@@ -1,4 +1,7 @@
-﻿namespace dinopays.web.Models
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace dinopays.web.Models
 {
     public class Summary
     {
@@ -9,5 +12,9 @@
         public decimal PositiveOutgoing { get; set; }
 
         public decimal NegativeOutgoing { get; set; }
+
+        public IEnumerable<Transaction> PositiveTransactions { get; set; } = Enumerable.Empty<Transaction>();
+
+        public IEnumerable<Transaction> NegativeTransactions { get; set; } = Enumerable.Empty<Transaction>();
     }
 }

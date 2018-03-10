@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,30 +24,40 @@ namespace dinopays.web.ApplicationServices
         {
             var response = await _starlingClient.GetTransactions(from, to, cancel);
 
-            return response.Transactions.Aggregate(new Summary(), Folder);
+            var transactions = MapTransactions(response, cancel);
 
-            Summary Folder(Summary summary, TransactionSummary transaction)
+            var finalSummary = transactions.Aggregate(new Summary(), Folder);
+            finalSummary.PositiveTransactions = transactions.Where(t => t.Direction == Direction.Outbound &&
+                                                                        t.PositivityCategory == PositivityCategory.Positive)
+                                                            .OrderByDescending(t => t.CreatedAt)
+                                                            .Take(5);
+            finalSummary.NegativeTransactions = transactions.Where(t => t.Direction == Direction.Outbound &&
+                                                                        t.PositivityCategory == PositivityCategory.Negative)
+                                                            .OrderByDescending(t => t.CreatedAt)
+                                                            .Take(5);
+            return finalSummary;
+
+            Summary Folder(Summary summary, Transaction transaction)
             {
+                var amount = transaction.Amount;
+                var category = transaction.PositivityCategory;
                 switch (transaction.Direction)
                 {
                     case Direction.Inbound:
                         return new Summary
                         {
-                            TotalIncoming = summary.TotalIncoming + transaction.Amount,
+                            TotalIncoming = summary.TotalIncoming + amount,
                             TotalOutgoing = summary.TotalOutgoing,
                             PositiveOutgoing = summary.PositiveOutgoing,
                             NegativeOutgoing = summary.NegativeOutgoing
                         };
                     case Direction.Outbound:
-                        var amount = Math.Abs(transaction.Amount);
-                        var category = Categorise(transaction, cancel).GetAwaiter().GetResult();
-
                         return new Summary
                         {
                             TotalIncoming = summary.TotalIncoming,
-                            TotalOutgoing = summary.TotalOutgoing + Math.Abs(transaction.Amount),
+                            TotalOutgoing = summary.TotalOutgoing + amount,
                             PositiveOutgoing = summary.PositiveOutgoing + (category == PositivityCategory.Positive ? amount : 0),
-                            NegativeOutgoing = summary.NegativeOutgoing + (category == PositivityCategory.Negative ? amount : 0),
+                            NegativeOutgoing = summary.NegativeOutgoing + (category == PositivityCategory.Negative ? amount : 0)
                         };
                     default:
                         return summary;
@@ -53,11 +65,25 @@ namespace dinopays.web.ApplicationServices
             }
         }
 
-        async Task<PositivityCategory> Categorise(TransactionSummary transaction, CancellationToken cancel)
+        private List<Transaction> MapTransactions(TransactionsResponse response, CancellationToken cancel)
         {
+            return response.Transactions.AsParallel().Select(t =>
+            {
+                var spendingCategory = GetSpendingCategory(t, cancel).GetAwaiter().GetResult();
+                return new Transaction
+                {
+                    CreatedAt = t.Created,
+                    Amount = Math.Abs(t.Amount),
+                    Description = t.Narrative,
+                    Direction = t.Direction,
+                    PositivityCategory = Categorise(spendingCategory),
+                    SpendingCategory = spendingCategory
+                };
+            }).ToList();
+        }
 
-            var spendingCategory = await GetSpendingCategory(transaction, cancel);
-
+        PositivityCategory Categorise(SpendingCategory spendingCategory)
+        {
             switch (spendingCategory)
             {
                 case SpendingCategory.BillsAndServices:
