@@ -1,10 +1,22 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 
-export class Home extends React.Component<RouteComponentProps<{}>, {}> {
+interface ISomeShit {
+    test: string
+}
+
+export class Home extends React.Component<RouteComponentProps<{}>, ISomeShit> {
+    constructor() {
+        super();
+        this.state = { test: "hello" };
+        this.state = { test: "hello" };
+    }
+
     public render() {
-        return <div>
-           =<h1>DINoPAYS</h1>
-        </div>;
+        return (
+            <div className="text-center dino-row">
+                <img src="dino-normal.png" />
+            </div>
+        );
     }
 }
