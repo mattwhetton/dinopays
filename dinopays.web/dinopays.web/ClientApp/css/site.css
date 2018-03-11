@@ -48,6 +48,12 @@ body { font-family: 'Luckiest Guy', cursive; }
     justify-content: center;
 }
 
+.dino-desc {
+    color: #FFF;
+    font-size: 40px;
+    text-shadow: #000 2px 2px;
+}
+
 .dino-row img {
     max-width: 400px;
     width: 90%;

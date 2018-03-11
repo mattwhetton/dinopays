@@ -204,6 +204,9 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         return (
             <div>
                 <div className={this.getDinoBg()}>
+                    <div className="col-sm-8 col-sm-offset-2 text-center">
+                        <h2 className="dino-desc">Your dinopet is <span className="green">{this.getHealthDescription()}</span></h2>
+                    </div>
                     <div className='col-sm-12'>
                         <div className="text-center dino-row">
                             {this.renderDino()}
@@ -211,7 +214,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
 
                     </div>
                 </div>
-
+                
                 <div className='row'>
                     <div className="col-sm-6">
                         <div className="summary-item">
