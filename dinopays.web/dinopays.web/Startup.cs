@@ -34,7 +34,7 @@ namespace dinopays.web
 
             services.Configure<StarlingOptions>(Configuration);
 
-            services.AddSingleton<IStarlingClient, StarlingClient>();
+            services.AddSingleton<IStarlingClientFactory, StarlingClientFactory>();
             services.AddSingleton<ISummaryBuilder, SummaryBuilder>();
             services.AddSingleton<IGoalRepository, GoalRepository>();
             services.AddSingleton(p =>

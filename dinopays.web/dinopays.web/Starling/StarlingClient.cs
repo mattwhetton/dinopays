@@ -17,14 +17,14 @@ namespace dinopays.web.Starling
     {
         private readonly HttpClient _httpClient;
 
-        public StarlingClient(IOptions<StarlingOptions> options)
+        public StarlingClient(string accessToken)
         {
             _httpClient = new HttpClient
             {
                 BaseAddress = new Uri("https://api-sandbox.starlingbank.com/api/v1/"),
                 DefaultRequestHeaders =
                 {
-                    Authorization = new AuthenticationHeaderValue("Bearer", options.Value.StarlingAccessToken)
+                    Authorization = new AuthenticationHeaderValue("Bearer", accessToken)
                 }
             };
         }

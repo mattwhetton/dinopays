@@ -12,20 +12,21 @@ namespace dinopays.web.ApplicationServices
 {
     public class SummaryBuilder : ISummaryBuilder
     {
-        private readonly IStarlingClient _starlingClient;
+        private readonly IStarlingClientFactory _starlingClientFactory;
         private readonly IGoalRepository _goalRepository;
 
-        public SummaryBuilder(IStarlingClient starlingClient,
+        public SummaryBuilder(IStarlingClientFactory starlingClientFactory,
                               IGoalRepository goalRepository)
         {
-            _starlingClient = starlingClient;
+            _starlingClientFactory = starlingClientFactory;
             _goalRepository = goalRepository;
         }
 
 
-        public async Task<Summary> Summarise(DateTimeOffset from, DateTimeOffset to, CancellationToken cancel)
+        public async Task<Summary> Summarise(User user, DateTimeOffset from, DateTimeOffset to, CancellationToken cancel)
         {
-            var transactions = (await GetTransactions(from, to, cancel)).ToList();
+            var client = _starlingClientFactory.CreateClient(user.AccessToken);
+            var transactions = (await GetTransactions(client, from, to, cancel)).ToList();
 
             var finalSummary = transactions.Aggregate(new Summary(), Folder);
             finalSummary.RecentBonusTransactions = transactions.Where(t => t.Direction == Direction.Outbound &&
@@ -65,13 +66,15 @@ namespace dinopays.web.ApplicationServices
         }
 
 
-        private async Task<IEnumerable<Transaction>> GetTransactions(DateTimeOffset from, 
+        private async Task<IEnumerable<Transaction>> GetTransactions(IStarlingClient client,
+                                                                     DateTimeOffset from, 
                                                                      DateTimeOffset to, 
                                                                      CancellationToken cancel)
         {
-            var allTransactionsTask = _starlingClient.GetTransactions(from, to, cancel);
-            var masterCardTransactionsTask = _starlingClient.GetMasterCardTransactions(from, to, cancel);
-            var directDebitTransactionsTask = _starlingClient.GetDirectDebitTransactions(from, to, cancel);
+
+            var allTransactionsTask = client.GetTransactions(from, to, cancel);
+            var masterCardTransactionsTask = client.GetMasterCardTransactions(from, to, cancel);
+            var directDebitTransactionsTask = client.GetDirectDebitTransactions(from, to, cancel);
 
             var allTransactions = await allTransactionsTask;
             var masterCardTransactions = await masterCardTransactionsTask;
@@ -127,22 +130,6 @@ namespace dinopays.web.ApplicationServices
             }
 
             return PositivityCategory.Neutral;
-        }
-
-        private Task<SpendingCategory> GetSpendingCategory(TransactionSummary transaction, CancellationToken cancel)
-        {
-            if (transaction.Source == Source.MasterCard)
-            {
-                return _starlingClient.GetMastercardTransactionCategory(transaction.Id, cancel);
-            }
-            else if (transaction.Source == Source.DirectDebit)
-            {
-                return _starlingClient.GetDirectDebitTransactionCategory(transaction.Id, cancel);
-            }
-            else
-            {
-                return Task.FromResult(SpendingCategory.None);
-            }
         }
 
         private IEnumerable<GoalStatus> AnalyseGoals(IEnumerable<Transaction> transactions)

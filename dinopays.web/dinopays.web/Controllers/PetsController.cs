@@ -7,6 +7,7 @@ using dinopays.web.Models;
 using dinopays.web.Starling;
 using dinopays.web.Starling.Models;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,18 +18,21 @@ namespace dinopays.web.Controllers
     {
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        public async Task<Pet> Get(Guid id,
+        public async Task<Pet> Get(string username,
+                                   [FromServices] IMongoCollection<User> users,
                                    [FromServices] ISummaryBuilder summaryBuilder,
                                    CancellationToken cancel)
         {
+            var user = users.AsQueryable().First(u => u.Username == username);
+
             var now = DateTimeOffset.UtcNow;
             var then = now.AddMonths(-1);
 
-            var finalSummary = await summaryBuilder.Summarise(then, now, cancel);
+            var finalSummary = await summaryBuilder.Summarise(user, then, now, cancel);
 
             return new Pet
             {
-                Id = id,
+                Id = Guid.NewGuid(),
                 Health = CalculateHealth(finalSummary),
                 BonusHealth = CalculateBonus(finalSummary),
                 Summary = finalSummary,
