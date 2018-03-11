@@ -1,8 +1,6 @@
 using System;
 using dinopays.web.ApplicationServices;
-using dinopays.web.Data;
 using dinopays.web.Models;
-using dinopays.web.Options;
 using dinopays.web.Starling;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -32,11 +30,8 @@ namespace dinopays.web
         {
             ConfigureMongo();
 
-            services.Configure<StarlingOptions>(Configuration);
-
             services.AddSingleton<IStarlingClientFactory, StarlingClientFactory>();
             services.AddSingleton<ISummaryBuilder, SummaryBuilder>();
-            services.AddSingleton<IGoalRepository, GoalRepository>();
             services.AddSingleton(p =>
             {
                 var url = MongoUrl.Create("mongodb://localhost:27017/dinopays");
