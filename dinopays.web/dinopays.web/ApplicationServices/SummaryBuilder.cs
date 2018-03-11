@@ -13,13 +13,10 @@ namespace dinopays.web.ApplicationServices
     public class SummaryBuilder : ISummaryBuilder
     {
         private readonly IStarlingClientFactory _starlingClientFactory;
-        private readonly IGoalRepository _goalRepository;
 
-        public SummaryBuilder(IStarlingClientFactory starlingClientFactory,
-                              IGoalRepository goalRepository)
+        public SummaryBuilder(IStarlingClientFactory starlingClientFactory)
         {
             _starlingClientFactory = starlingClientFactory;
-            _goalRepository = goalRepository;
         }
 
 
@@ -33,7 +30,7 @@ namespace dinopays.web.ApplicationServices
                                                                            t.PositivityCategory != PositivityCategory.Neutral)
                                                                .OrderByDescending(t => t.CreatedAt)
                                                                .Take(5);
-            finalSummary.Goals = AnalyseGoals(transactions);
+            finalSummary.Goals = AnalyseGoals(user, transactions);
 
             return finalSummary;
 
@@ -132,9 +129,9 @@ namespace dinopays.web.ApplicationServices
             return PositivityCategory.Neutral;
         }
 
-        private IEnumerable<GoalStatus> AnalyseGoals(IEnumerable<Transaction> transactions)
+        private IEnumerable<GoalStatus> AnalyseGoals(User user, IEnumerable<Transaction> transactions)
         {
-            return _goalRepository.Goals.Select(AnalyseGoal);
+            return user.Goals.Select(AnalyseGoal);
 
             GoalStatus AnalyseGoal(Goal goal)
             {

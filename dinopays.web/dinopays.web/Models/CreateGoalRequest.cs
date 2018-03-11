@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace dinopays.web.Models
 {
-    public class Goal
+    public class CreateGoalRequest
     {
-        public Guid Id { get; set; }
-
         public string Name { get; set; }
 
         public IEnumerable<string> MatchingTransactions { get; set; }

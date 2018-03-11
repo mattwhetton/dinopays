@@ -10,5 +10,7 @@ namespace dinopays.web.Models
         public string Username { get; set; }
 
         public string AccessToken { get; set; }
+
+        public IEnumerable<Goal> Goals { get; set; }
     }
 }
