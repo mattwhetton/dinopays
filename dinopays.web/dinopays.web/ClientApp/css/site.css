@@ -42,7 +42,7 @@ body { font-family: 'Luckiest Guy', cursive; }
 .dino-row {
     margin-top: 50px;
     margin-bottom: 50px;
-    height: 400px;
+    height: 400px;  
     display: flex;
     align-items: flex-end;
     justify-content: center;

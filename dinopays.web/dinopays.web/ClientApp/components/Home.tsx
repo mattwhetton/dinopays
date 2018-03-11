@@ -69,8 +69,23 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         this.getGoals = this.getGoals.bind(this);
         this.petDino = this.petDino.bind(this);
         this.resetPettingCount = this.resetPettingCount.bind(this);
+        this.saveState = this.saveState.bind(this);
+        this.loadState = this.loadState.bind(this);
 
-        
+        this.loadState();
+    }
+
+    loadState() {
+        let stateStr = localStorage.getItem("sd");
+        if (stateStr) {
+            let state = JSON.parse(stateStr);
+            this.state = state;
+        }
+    }
+
+    saveState() {
+        let stateStr = JSON.stringify(this.state);
+        localStorage.setItem("sd", stateStr);
     }
 
     componentDidMount() {
@@ -99,6 +114,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
             recentBonusTransactions: recentBonusTransactions,
             goals: goals
         });
+        this.saveState();
     }
 
     petDino() {
