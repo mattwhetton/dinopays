@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using dinopays.web.Starling.Models;
 
 namespace dinopays.web.Models
 {
@@ -12,5 +13,7 @@ namespace dinopays.web.Models
         public string AccessToken { get; set; }
 
         public IEnumerable<Goal> Goals { get; set; }
+
+        public IDictionary<string, string> Categories { get; set; }
     }
 }
