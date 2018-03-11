@@ -22,7 +22,11 @@ namespace dinopays.web.ApplicationServices
         public async Task<Summary> Summarise(User user, DateTimeOffset from, DateTimeOffset to, CancellationToken cancel)
         {
             var client = _starlingClientFactory.CreateClient(user.AccessToken);
-            var transactions = (await GetTransactions(client, from, to, cancel)).ToList();
+            var transactions = (await GetTransactions(client, 
+                                                      user.Categories.Enumify<SpendingCategory, PositivityCategory>(), 
+                                                      from, 
+                                                      to, 
+                                                      cancel)).ToList();
 
             var finalSummary = transactions.Aggregate(new Summary(), Folder);
             finalSummary.RecentBonusTransactions = transactions.Where(t => t.Direction == Direction.Outbound &&
@@ -63,6 +67,7 @@ namespace dinopays.web.ApplicationServices
 
 
         private async Task<IEnumerable<Transaction>> GetTransactions(IStarlingClient client,
+                                                                     IDictionary<SpendingCategory, PositivityCategory> categories,
                                                                      DateTimeOffset from, 
                                                                      DateTimeOffset to, 
                                                                      CancellationToken cancel)
@@ -88,41 +93,17 @@ namespace dinopays.web.ApplicationServices
                                            Amount = Math.Abs(t.Amount),
                                            Description = t.Narrative,
                                            Direction = t.Direction,
-                                           PositivityCategory = Categorise(t.SpendingCategory),
+                                           PositivityCategory = Categorise(categories, t.SpendingCategory),
                                            SpendingCategory = t.SpendingCategory
-                                       });
+                                       })
+                                       .OrderByDescending(t => t.CreatedAt);
         }
 
-        PositivityCategory Categorise(SpendingCategory spendingCategory)
+        PositivityCategory Categorise(IDictionary<SpendingCategory, PositivityCategory> categories, SpendingCategory spendingCategory)
         {
-            switch (spendingCategory)
+            if (categories.TryGetValue(spendingCategory, out var positivityCategory))
             {
-                case SpendingCategory.BillsAndServices:
-                    break;
-                case SpendingCategory.EatingOut:
-                    return PositivityCategory.Negative;
-                case SpendingCategory.Entertainment:
-                    break;
-                case SpendingCategory.Expenses:
-                    break;
-                case SpendingCategory.General:
-                    break;
-                case SpendingCategory.Groceries:
-                    break;
-                case SpendingCategory.Shopping:
-                    break;
-                case SpendingCategory.Holidays:
-                    return PositivityCategory.Positive;
-                case SpendingCategory.Payments:
-                    break;
-                case SpendingCategory.Transport:
-                    break;
-                case SpendingCategory.Lifestyle:
-                    break;
-                case SpendingCategory.None:
-                    break;
-                default:
-                    return PositivityCategory.Neutral;
+                return positivityCategory;
             }
 
             return PositivityCategory.Neutral;

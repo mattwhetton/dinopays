@@ -14,6 +14,6 @@ namespace dinopays.web.Models
 
         public IEnumerable<Goal> Goals { get; set; }
 
-        public IDictionary<string, string> Categories { get; set; }
+        public Dictionary<string, string> Categories { get; set; }
     }
 }
