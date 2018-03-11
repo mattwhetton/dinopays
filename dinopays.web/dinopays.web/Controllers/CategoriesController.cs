@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using dinopays.web.ApplicationServices;
 using dinopays.web.Models;
 using dinopays.web.Starling.Models;
@@ -20,6 +21,15 @@ namespace dinopays.web.Controllers
         {
             users.FindOneAndUpdate(u => u.Username == username,
                                    Builders<User>.Update.Set(u => u.Categories, categories.Stringify()));
+        }
+
+        [HttpGet]
+        public Dictionary<SpendingCategory, PositivityCategory> Get(string username,
+                                                                    [FromServices] IMongoCollection<User> users)
+        {
+            var user = users.AsQueryable().First(u => u.Username == username);
+
+            return user.Categories.Enumify<SpendingCategory, PositivityCategory>();
         }
     }
 }
