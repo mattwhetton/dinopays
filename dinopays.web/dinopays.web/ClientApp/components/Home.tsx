@@ -8,7 +8,8 @@ interface IHomeState {
     totalOutgoing: number,
     recentBonusTransactions: IPetTransaction[],
     goals: IPetGoalSummary[],
-    pettingCount: number
+    pettingCount: number,
+    isPetting: number
 }
 
 interface IPet {
@@ -56,7 +57,8 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
             totalOutgoing: 0,
             recentBonusTransactions: [],
             goals: [],
-            pettingCount: 0
+            pettingCount: 0,
+            isPetting: 0
         };
 
         this.renderDino = this.renderDino.bind(this);
@@ -71,6 +73,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         this.resetPettingCount = this.resetPettingCount.bind(this);
         this.saveState = this.saveState.bind(this);
         this.loadState = this.loadState.bind(this);
+        this.resetIsPettingCount = this.resetIsPettingCount.bind(this);
 
         this.loadState();
     }
@@ -79,6 +82,8 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         let stateStr = localStorage.getItem("sd");
         if (stateStr) {
             let state = JSON.parse(stateStr);
+            state.isPetting = 0;
+            state.pettingCount = 0;
             this.state = state;
         }
     }
@@ -119,13 +124,24 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
 
     petDino() {
         let newPettingCount = this.state.pettingCount + 1;
+        let newIsPettingCount = this.state.isPetting + 1;
         this.setState({
-            pettingCount: newPettingCount
+            pettingCount: newPettingCount,
+            isPetting: newIsPettingCount
         });
 
+        setTimeout(this.resetIsPettingCount, 500);
+
         if (newPettingCount > 2) {
-            setTimeout(this.resetPettingCount, 5000);
+            setTimeout(this.resetPettingCount, 3000);
         }
+    }
+
+    resetIsPettingCount() {
+        let newIsPettingCount = this.state.isPetting - 1;
+        this.setState({
+            isPetting: newIsPettingCount
+        });
     }
 
     resetPettingCount() {
@@ -135,13 +151,18 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
     }
 
     renderDino() {
+        let className = "";
+        if (this.state.isPetting > 0) {
+            className = "petting";
+        }
+
         let dinoSrc = `/dino-${this.state.health}.png`;
         if (this.state.pettingCount > 2) {
             dinoSrc = `/dino-kiss.png`;
         }
 
         return (
-            <img src={dinoSrc} onClick={this.petDino} />
+            <img src={dinoSrc} onClick={this.petDino} className={className} />
         );
     }
 
