@@ -16,20 +16,32 @@ namespace dinopays.web.Controllers
         // PUT api/<controller>/5
         [HttpPut]
         public void Put(string username,
-                        [FromBody] Dictionary<SpendingCategory, PositivityCategory> categories,
+                        [FromBody] IEnumerable<CategoryThinger> categories,
                         [FromServices] IMongoCollection<User> users)
         {
             users.FindOneAndUpdate(u => u.Username == username,
-                                   Builders<User>.Update.Set(u => u.Categories, categories.Stringify()));
+                                   Builders<User>.Update.Set(u => u.Categories,
+                                                             categories.ToDictionary(t => t.Name, t => t.Status).Stringify()));
         }
 
         [HttpGet]
-        public Dictionary<SpendingCategory, PositivityCategory> Get(string username,
+        public IEnumerable<CategoryThinger> Get(string username,
                                                                     [FromServices] IMongoCollection<User> users)
         {
             var user = users.AsQueryable().First(u => u.Username == username);
 
-            return user.Categories.Enumify<SpendingCategory, PositivityCategory>();
+            return user.Categories.Enumify<SpendingCategory, PositivityCategory>().Select(kvp => new CategoryThinger
+            {
+                Name = kvp.Key,
+                Status = kvp.Value
+            });
         }
+    }
+
+    public class CategoryThinger
+    {
+        public SpendingCategory Name { get; set; }
+
+        public PositivityCategory Status { get; set; }
     }
 }
