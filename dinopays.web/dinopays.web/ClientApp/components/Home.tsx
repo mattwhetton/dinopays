@@ -7,7 +7,8 @@ interface IHomeState {
     totalIncoming: number,
     totalOutgoing: number,
     recentBonusTransactions: IPetTransaction[],
-    goals: IPetGoalSummary[]
+    goals: IPetGoalSummary[],
+    pettingCount: number
 }
 
 interface IPet {
@@ -54,7 +55,8 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
             totalIncoming: 0,
             totalOutgoing: 0,
             recentBonusTransactions: [],
-            goals: []
+            goals: [],
+            pettingCount: 0
         };
 
         this.renderDino = this.renderDino.bind(this);
@@ -65,6 +67,8 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         this.getHealthDescription = this.getHealthDescription.bind(this);
         this.getGoal = this.getGoal.bind(this);
         this.getGoals = this.getGoals.bind(this);
+        this.petDino = this.petDino.bind(this);
+        this.resetPettingCount = this.resetPettingCount.bind(this);
 
         
     }
@@ -97,10 +101,31 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
         });
     }
 
+    petDino() {
+        let newPettingCount = this.state.pettingCount + 1;
+        this.setState({
+            pettingCount: newPettingCount
+        });
+
+        if (newPettingCount > 2) {
+            setTimeout(this.resetPettingCount, 5000);
+        }
+    }
+
+    resetPettingCount() {
+        this.setState({
+            pettingCount: 0
+        });
+    }
+
     renderDino() {
         let dinoSrc = `/dino-${this.state.health}.png`;
+        if (this.state.pettingCount > 2) {
+            dinoSrc = `/dino-kiss.png`;
+        }
+
         return (
-            <img src={dinoSrc}/>
+            <img src={dinoSrc} onClick={this.petDino} />
         );
     }
 
