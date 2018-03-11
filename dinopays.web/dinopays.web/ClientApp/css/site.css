@@ -175,6 +175,15 @@ form .btn {
     margin-top: 10px;
 }
 
+.fixed-label {
+    width: 150px;
+}
+
+select.bigger {
+    padding: 5px;
+    width: 180px;
+}
+
 @media (max-width: 920px) {
     .dino-row { height: 300px; }
 

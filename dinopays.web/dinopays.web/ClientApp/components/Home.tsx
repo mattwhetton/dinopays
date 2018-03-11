@@ -312,6 +312,9 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
                     <div className="col-sm-10 col-sm-offset-1">
                         {this.getTransactions()}
                     </div>
+                    <div className="right">
+                        <a className="edit-btn" href="/categories">edit categories</a>
+                    </div>
                 </div>
 
             </div>
