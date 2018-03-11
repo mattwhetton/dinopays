@@ -17,7 +17,7 @@ namespace dinopays.web.Controllers
     public class PetsController : Controller
     {
         // GET api/<controller>/5
-        [HttpGet("{id}")]
+        [HttpGet("{username}")]
         public async Task<Pet> Get(string username,
                                    [FromServices] IMongoCollection<User> users,
                                    [FromServices] ISummaryBuilder summaryBuilder,
