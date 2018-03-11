@@ -112,6 +112,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
     }
 
     sethealth(health: number, totalIncoming: number, totalOutgoing: number, recentBonusTransactions: IPetTransaction[], goals: IPetGoalSummary[]) {
+        health = Math.max(Math.min(health, 5), 0);
         this.setState({
             health: health,
             totalIncoming: totalIncoming,
@@ -237,6 +238,10 @@ export class Home extends React.Component<RouteComponentProps<{}>, IHomeState> {
     getGoals() {
         return (
             <div>
+
+                <div className="right">
+                    <a className="edit-btn" href="/add-goal">add goal</a>
+                </div>
                 <h3 className="transactions-title">
                     Your goals
                 </h3>

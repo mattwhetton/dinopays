@@ -153,10 +153,26 @@ body { font-family: 'Luckiest Guy', cursive; }
 
 .transaction .thumb { font-size: 26px !important; }
 
+.right {
+    float: right;
+    margin-top: 4px;
+    margin-right: 4px;
+}
+
+.edit-btn {
+    font-size: 20px;
+}
+
 .footer {
     background: #333;
     height: 20px;
     margin-top: 50px;
+}
+
+form .btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
 }
 
 @media (max-width: 920px) {
@@ -166,5 +182,5 @@ body { font-family: 'Luckiest Guy', cursive; }
 }
 
 @media (max-width: 462px) {
-    .dino-row img { max-width: 200px; }
+    .dino-row img { max-width: 300px; }
 }
